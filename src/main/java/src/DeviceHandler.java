@@ -13,6 +13,8 @@ import io.netty.channel.ChannelHandlerContext;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -29,39 +31,47 @@ public class DeviceHandler extends BaseHandler {
 
     public DeviceHandler(String remoteAddress) {
         super();
-        System.out.println("Handler create " + remoteAddress);
+        finished = false;
     }
 
     @Override
     public String writeCommand(String command) {
+        finished = false;
+
         response = "Unknown";
 
         String[] allovedCommands = new String[]{"Open", "Close", "State"};
         List<String> commandList = Arrays.asList(allovedCommands);
 
-        if ((chanel != null) & (commandList.contains(command))) {
+        if (chanel != null) {
+            if (commandList.contains(command)) {
+                Charset chrst = Charset.forName("UTF-8");
+                CharSequence ch = command;
+                ByteBuf message = Unpooled.buffer(ch.length());
+                message.writeCharSequence(ch, chrst);
 
-            finished = false;
-            Charset chrst = Charset.forName("UTF-8");
-            CharSequence ch = command;
-            ByteBuf message = Unpooled.buffer(ch.length());
-            message.writeCharSequence(ch, chrst);
+                chanel.writeAndFlush(message);
 
-            chanel.writeAndFlush(message);
-           
-            long writeTime = System.currentTimeMillis();
-            do {
-                long thisTime = System.currentTimeMillis();
-                if ((thisTime - writeTime) > 10000) {
-                    finished = true;
-                    response = "Timeouted";
-                } 
-            } while (!finished);
- 
+                long writeTime = System.currentTimeMillis();
+                do {
+                    long thisTime = System.currentTimeMillis();
+                    if ((thisTime - writeTime) > 10000) {
+                        finished = true;
+                        response = "Timeouted";
+                    } else {
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(DeviceHandler.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                } while (!finished);
+            } else {
+                response = "UnknownCommand";
+            }
         } else {
             response = "Disconnected";
         }
-
         return response;
     }
 
@@ -72,19 +82,20 @@ public class DeviceHandler extends BaseHandler {
         String in = (String) ((ByteBuf) msg).readCharSequence(i, chrst);
 
         String[] parts = in.split("\\.");
-        
-        if (parts[3].equals("Identification")) {
+
+        if (parts[0].equals("Identification")) {
             devicename = parts[1];;
             devicenumber = parts[2];
-        } else  {
-            response = parts[3];
+        } else {
+            response = parts[0];
+            finished = true;
+            System.out.println("Device handler finished ");
         }
-
     }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
-        finished = true;
+        // finished = true;
     }
 
     @Override

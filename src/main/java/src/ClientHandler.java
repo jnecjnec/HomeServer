@@ -31,7 +31,6 @@ public class ClientHandler extends BaseHandler {
         int i = ((ByteBuf) msg).readableBytes();
         String in = (String) ((ByteBuf) msg).readCharSequence(i, chrst);
 
-        CharSequence ch = "";
         int l = in.indexOf("HomeServer.");
         if (l == 0) {
             String[] parts = in.split("\\.");
@@ -47,8 +46,8 @@ public class ClientHandler extends BaseHandler {
                 }
             }
 
-            ch = "HomeServer." + device + "." + devicenumber + "." + result;
-
+            String response = String.format("HomeServer.%s.%s.%s", device, devicenumber, result); 
+            CharSequence ch = response;
             ByteBuf message = Unpooled.buffer(ch.length());
             message.writeCharSequence(ch, chrst);
             ctx.write(message);
