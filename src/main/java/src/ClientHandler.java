@@ -4,8 +4,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import java.nio.charset.Charset;
+import static src.BaseHandler.channels;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -17,9 +17,10 @@ import java.nio.charset.Charset;
  * @author jnec
  */
 @Sharable
-public class ClientHandler extends ChannelInboundHandlerAdapter {
+public class ClientHandler extends BaseHandler {
 
     public ClientHandler(String remoteAddress) {
+        super();
         System.out.println("Handler create " + remoteAddress);
     }
 
@@ -28,20 +29,33 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
         Charset chrst = Charset.forName("UTF-8");
 
         int i = ((ByteBuf) msg).readableBytes();
-        CharSequence in = ((ByteBuf) msg).readCharSequence(i, chrst);
-
-        System.out.println("lrecieved data " + in);
+        String in = (String) ((ByteBuf) msg).readCharSequence(i, chrst);
 
         CharSequence ch = "";
-        if (in.equals("Gate.Garaz.Open")) {
-            ch = "Gate.Garaz.Opened";
+        int l = in.indexOf("HomeServer.");
+        if (l == 0) {
+            String[] parts = in.split("\\.");
+            String device = parts[1];
+            String devicenumber = parts[2];
+            String cmd = parts[3];
+            String result = "Unknown";
+            // send to device and should wait
+            for (BaseHandler c : channels) {
+                result = "NotFound";
+                if ((c.getDeviceNumber().equals(devicenumber)) & (c.getDeviceName().equals(device))) {
+                    result = c.writeCommand(cmd);
+                }
+            }
+
+            ch = "HomeServer." + device + "." + devicenumber + "." + result;
+
+            ByteBuf message = Unpooled.buffer(ch.length());
+            message.writeCharSequence(ch, chrst);
+            ctx.write(message);
+
         } else {
             ctx.close();
         }
-
-        ByteBuf firstMessage = Unpooled.buffer(ch.length());
-        firstMessage.writeCharSequence(ch, chrst);
-        ctx.write(firstMessage);
     }
 
     @Override
@@ -57,23 +71,18 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("Client handler active ");
-    }
-
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("Client handler inactive ");
+    protected String writeCommand(String command) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void handlerAdded(ChannelHandlerContext arg0) throws Exception {
-        // TODO Auto-generated method stub
-        System.out.println("Client handler added ");
+    protected String getDeviceName() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void handlerRemoved(ChannelHandlerContext arg0) throws Exception {
-        // TODO Auto-generated method stub
-        System.out.println("Handler removed ");
+    protected String getDeviceNumber() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
 }

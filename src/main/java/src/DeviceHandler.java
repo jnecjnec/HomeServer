@@ -7,46 +7,84 @@ package src;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *
  * @author jnec
  */
 @Sharable
-public class DeviceHandler extends ChannelInboundHandlerAdapter {
+public class DeviceHandler extends BaseHandler {
+
+    Channel chanel = null;
+    boolean finished = false;
+    String devicename = "";
+    String devicenumber = "";
+    String response = "";
 
     public DeviceHandler(String remoteAddress) {
+        super();
         System.out.println("Handler create " + remoteAddress);
+    }
+
+    @Override
+    public String writeCommand(String command) {
+        response = "Unknown";
+
+        String[] allovedCommands = new String[]{"Open", "Close", "State"};
+        List<String> commandList = Arrays.asList(allovedCommands);
+
+        if ((chanel != null) & (commandList.contains(command))) {
+
+            finished = false;
+            Charset chrst = Charset.forName("UTF-8");
+            CharSequence ch = command;
+            ByteBuf message = Unpooled.buffer(ch.length());
+            message.writeCharSequence(ch, chrst);
+
+            chanel.writeAndFlush(message);
+           
+            long writeTime = System.currentTimeMillis();
+            do {
+                long thisTime = System.currentTimeMillis();
+                if ((thisTime - writeTime) > 10000) {
+                    finished = true;
+                    response = "Timeouted";
+                } 
+            } while (!finished);
+ 
+        } else {
+            response = "Disconnected";
+        }
+
+        return response;
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         Charset chrst = Charset.forName("UTF-8");
-
         int i = ((ByteBuf) msg).readableBytes();
-        CharSequence in = ((ByteBuf) msg).readCharSequence(i, chrst);
+        String in = (String) ((ByteBuf) msg).readCharSequence(i, chrst);
 
-        System.out.println("lrecieved data " + in);
-
-        CharSequence ch = "";
-        if (in.equals("Gate.Garaz.Open")) {
-
-            ch = "Gate.Garaz.Opened";
+        String[] parts = in.split("\\.");
+        
+        if (parts[3].equals("Identification")) {
+            devicename = parts[1];;
+            devicenumber = parts[2];
+        } else  {
+            response = parts[3];
         }
 
-        ByteBuf firstMessage = Unpooled.buffer(ch.length());
-        firstMessage.writeCharSequence(ch, chrst);
-        ctx.write(firstMessage);
-                
     }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
-        ctx.flush();
+        finished = true;
     }
 
     @Override
@@ -58,19 +96,24 @@ public class DeviceHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("Device handler active ");
-    }
-    
-    @Override
-    public void handlerAdded(ChannelHandlerContext arg0) throws Exception {
-        // TODO Auto-generated method stub
-        System.out.println("Device handler added ");
+        super.channelActive(ctx);
+        chanel = ctx.channel();
+        channels.add(this);
     }
 
     @Override
-    public void handlerRemoved(ChannelHandlerContext arg0) throws Exception {
-        // TODO Auto-generated method stub
-        System.out.println("Handler removed ");
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        channels.remove(this);
     }
+
+    @Override
+    protected String getDeviceName() {
+        return devicename;
+    }
+
+    @Override
+    protected String getDeviceNumber() {
+        return devicenumber;
+    }
+
 }
-
