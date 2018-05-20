@@ -77,8 +77,21 @@ public class DeviceHandler extends BaseHandler {
         String[] parts = in.split("\\.");
 
         if ((parts.length == 3) & (parts[0].equals("Identification"))) {
-            _devicename = parts[1];;
-            _devicenumber = parts[2];
+            boolean exists = false;
+            for (BaseHandler c : CHANNELS) {
+                if ((c.getDeviceNumber().equals(parts[2])) & (c.getDeviceName().equals(parts[1]))) {
+                    exists = true;
+                    break;
+                }
+            }
+
+            if (exists) {
+                ctx.close();
+            } else {
+                _devicename = parts[1];
+                _devicenumber = parts[2];
+            }
+
         } else if ((parts.length == 1) & (commandList.contains(parts[0])) & (!_devicename.isEmpty())) {
             _esponse = parts[0];
             _finished = true;
