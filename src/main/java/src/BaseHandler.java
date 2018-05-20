@@ -32,10 +32,10 @@ public abstract class BaseHandler extends ChannelInboundHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         // TODO Auto-generated method stub
         super.channelActive(ctx);
-        System.out.println("Base handler added ");
+       // System.out.println("Base handler added ");
     }
 
-    protected abstract String writeCommand(String command);
+    protected abstract void writeCommand(String command, ResponseListener listener);
     
     protected abstract String getDeviceName();
     

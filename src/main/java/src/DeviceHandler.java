@@ -28,51 +28,52 @@ public class DeviceHandler extends BaseHandler {
     String devicename = "";
     String devicenumber = "";
     String response = "";
+    ResponseListener listener = null;
 
     public DeviceHandler(String remoteAddress) {
         super();
-        finished = false;
+        finished = true;
     }
 
     @Override
-    public String writeCommand(String command) {
-        finished = false;
+    public void writeCommand(String command, ResponseListener listener) {
+        if (finished) {
+            finished = false;
+            this.listener = listener;
+            response = "Unknown";
 
-        response = "Unknown";
+            String[] allovedCommands = new String[]{"Open", "Close", "State"};
+            List<String> commandList = Arrays.asList(allovedCommands);
 
-        String[] allovedCommands = new String[]{"Open", "Close", "State"};
-        List<String> commandList = Arrays.asList(allovedCommands);
+            if (chanel != null) {
+                if (commandList.contains(command)) {
+                    Charset chrst = Charset.forName("UTF-8");
+                    CharSequence ch = command;
+                    ByteBuf message = Unpooled.buffer(ch.length());
+                    message.writeCharSequence(ch, chrst);
 
-        if (chanel != null) {
-            if (commandList.contains(command)) {
-                Charset chrst = Charset.forName("UTF-8");
-                CharSequence ch = command;
-                ByteBuf message = Unpooled.buffer(ch.length());
-                message.writeCharSequence(ch, chrst);
-
-                chanel.writeAndFlush(message);
-
-                long writeTime = System.currentTimeMillis();
-                do {
-                    long thisTime = System.currentTimeMillis();
-                    if ((thisTime - writeTime) > 10000) {
-                        finished = true;
-                        response = "Timeouted";
-                    } else {
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(DeviceHandler.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
-                } while (!finished);
+                    chanel.writeAndFlush(message);
+               
+                } else {
+                    response = "UnknownCommand";
+                    DoListener(listener, response, devicename, devicenumber);
+                }
             } else {
-                response = "UnknownCommand";
+                response = "Disconnected";
+                DoListener(listener, response, devicename, devicenumber);
             }
         } else {
-            response = "Disconnected";
+            response = "Busy";
+            DoListener(listener, response, devicename, devicenumber);
         }
-        return response;
+    }
+
+    private void DoListener(ResponseListener listener, String message, String devicename, String devicenumber) {
+        if (listener != null) {
+            listener.Response(message, devicename, devicenumber);
+            listener = null;
+
+        }
     }
 
     @Override
@@ -89,13 +90,15 @@ public class DeviceHandler extends BaseHandler {
         } else {
             response = parts[0];
             finished = true;
-            System.out.println("Device handler finished ");
+
+            DoListener(this.listener, response, devicename, devicenumber);
+
         }
     }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
-        // finished = true;
+
     }
 
     @Override
