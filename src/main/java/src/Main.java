@@ -46,7 +46,7 @@ public class Main {
                             }
                             //p.addLast(new LoggingHandler(LogLevel.INFO));
 
-                            p.addLast(new ClientHandler(p.channel().remoteAddress().toString()));
+                            p.addLast(new ClientHandler());
                         }
                     });
 

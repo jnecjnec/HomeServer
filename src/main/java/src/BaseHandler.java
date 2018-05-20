@@ -19,8 +19,8 @@ import java.util.List;
 @Sharable
 public abstract class BaseHandler extends ChannelInboundHandlerAdapter {
 
-    protected Charset chrst = Charset.forName("UTF-8");
-    protected static final List<BaseHandler> channels = new ArrayList<BaseHandler>();
+    protected static Charset CHARSET = Charset.forName("UTF-8");
+    protected static final List<BaseHandler> CHANNELS = new ArrayList<BaseHandler>();
 
     public BaseHandler() {
         super();

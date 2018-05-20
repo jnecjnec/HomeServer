@@ -5,7 +5,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
-import static src.BaseHandler.channels;
+import static src.BaseHandler.CHANNELS;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -19,21 +19,16 @@ import static src.BaseHandler.channels;
 @Sharable
 public class ClientHandler extends BaseHandler implements ResponseListener {
 
-    Channel chanel = null;
-
-    public ClientHandler(String remoteAddress) {
-        super();
-        //System.out.println("Handler create " + remoteAddress);
-    }
+    private static final String PREFIX = "HomeServer.";
+    private static final String RESPONSE_FORMAT = PREFIX + "%s.%s.%s";
+    private Channel _chanel = null;
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        //Charset chrst = Charset.forName("UTF-8");
-
         int i = ((ByteBuf) msg).readableBytes();
-        String in = (String) ((ByteBuf) msg).readCharSequence(i, chrst);
+        String in = (String) ((ByteBuf) msg).readCharSequence(i, CHARSET);
 
-        int l = in.indexOf("HomeServer.");
+        int l = in.indexOf(PREFIX);
         if (l == 0) {
             //chanel = ctx.channel();
             String[] parts = in.split("\\.");
@@ -42,7 +37,7 @@ public class ClientHandler extends BaseHandler implements ResponseListener {
             String cmd = parts[3];
             boolean result = false;
             // send to device and should wait
-            for (BaseHandler c : channels) {
+            for (BaseHandler c : CHANNELS) {
                 if ((c.getDeviceNumber().equals(devicenumber)) & (c.getDeviceName().equals(device))) {
                     result = true;
                     c.writeCommand(cmd, this);
@@ -52,32 +47,31 @@ public class ClientHandler extends BaseHandler implements ResponseListener {
             if (!result) {
                 DoResponse("NotFound", device, devicenumber);
             }
-          
+
         } else {
             ctx.close();
         }
     }
 
     private void DoResponse(String message, String devicename, String devicenumber) {
-        if (chanel != null) {
-            //Charset chrst = Charset.forName("UTF-8");
-            String response = String.format("HomeServer.%s.%s.%s", devicename, devicenumber, message);
+        if (_chanel != null) {
+            String response = String.format(RESPONSE_FORMAT, devicename, devicenumber, message);
             CharSequence ch = response;
             ByteBuf mess = Unpooled.buffer(ch.length());
-            mess.writeCharSequence(ch, chrst);
-            chanel.writeAndFlush(mess);
+            mess.writeCharSequence(ch, CHARSET);
+            _chanel.writeAndFlush(mess);
         }
     }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
-       // ctx.flush();
+        // ctx.flush();
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
-        chanel = ctx.channel();
+        _chanel = ctx.channel();
     }
 
     @Override
@@ -104,8 +98,7 @@ public class ClientHandler extends BaseHandler implements ResponseListener {
 
     @Override
     public void Response(String message, String devicename, String devicenumber) {
-        DoResponse( message, devicename, devicenumber);
-    
+        DoResponse(message, devicename, devicenumber);
     }
 
 }

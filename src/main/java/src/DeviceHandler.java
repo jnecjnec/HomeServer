@@ -20,48 +20,44 @@ import java.util.List;
 @Sharable
 public class DeviceHandler extends BaseHandler {
 
-    Channel chanel = null;
-    boolean finished = false;
-    String devicename = "";
-    String devicenumber = "";
-    String response = "";
-    ResponseListener _listener = null;
+    private static final String[] ALLOVED_RESPONSES = new String[]{"Opened", "Closesed", "Opening", "Closeing"};
+    private static final String[] ALLOVED_COMMANDS = new String[]{"Open", "Close", "State"};
 
-    public DeviceHandler(String remoteAddress) {
-        super();
-        finished = true;
-    }
+    private Channel _chanel = null;
+    private boolean _finished = true;
+    private String _devicename = "";
+    private String _devicenumber = "";
+    private String _esponse = "";
+    private ResponseListener _listener = null;
 
     @Override
     public void writeCommand(String command, ResponseListener listener) {
-        if (finished) {
-            finished = false;
+        if (_finished) {
+            _finished = false;
             _listener = listener;
-            response = "Unknown";
+            _esponse = "Unknown";
 
-            String[] allovedCommands = new String[]{"Open", "Close", "State"};
-            List<String> commandList = Arrays.asList(allovedCommands);
+            List<String> commandList = Arrays.asList(ALLOVED_COMMANDS);
 
-            if (chanel != null) {
+            if (_chanel != null) {
                 if (commandList.contains(command)) {
-                    // Charset chrst = Charset.forName("UTF-8");
                     CharSequence ch = command;
                     ByteBuf message = Unpooled.buffer(ch.length());
-                    message.writeCharSequence(ch, chrst);
+                    message.writeCharSequence(ch, CHARSET);
 
-                    chanel.writeAndFlush(message);
+                    _chanel.writeAndFlush(message);
 
                 } else {
-                    response = "UnknownCommand";
-                    DoListener(listener, response, devicename, devicenumber);
+                    _esponse = "UnknownCommand";
+                    DoListener(listener, _esponse, _devicename, _devicenumber);
                 }
             } else {
-                response = "Disconnected";
-                DoListener(listener, response, devicename, devicenumber);
+                _esponse = "Disconnected";
+                DoListener(listener, _esponse, _devicename, _devicenumber);
             }
         } else {
-            response = "Busy";
-            DoListener(listener, response, devicename, devicenumber);
+            _esponse = "Busy";
+            DoListener(listener, _esponse, _devicename, _devicenumber);
         }
     }
 
@@ -73,21 +69,23 @@ public class DeviceHandler extends BaseHandler {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        // Charset chrst = Charset.forName("UTF-8");
         int i = ((ByteBuf) msg).readableBytes();
-        String in = (String) ((ByteBuf) msg).readCharSequence(i, chrst);
+        String in = (String) ((ByteBuf) msg).readCharSequence(i, CHARSET);
+
+        List<String> commandList = Arrays.asList(ALLOVED_RESPONSES);
 
         String[] parts = in.split("\\.");
 
-        if (parts[0].equals("Identification")) {
-            devicename = parts[1];;
-            devicenumber = parts[2];
-        } else {
-            response = parts[0];
-            finished = true;
-
-            DoListener(_listener, response, devicename, devicenumber);
+        if ((parts.length == 3) & (parts[0].equals("Identification"))) {
+            _devicename = parts[1];;
+            _devicenumber = parts[2];
+        } else if ((parts.length == 1) & (commandList.contains(parts[0])) & (!_devicename.isEmpty())) {
+            _esponse = parts[0];
+            _finished = true;
+            DoListener(_listener, _esponse, _devicename, _devicenumber);
             _listener = null;
+        } else {
+            ctx.close();
         }
     }
 
@@ -106,23 +104,23 @@ public class DeviceHandler extends BaseHandler {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
-        chanel = ctx.channel();
-        channels.add(this);
+        _chanel = ctx.channel();
+        CHANNELS.add(this);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        channels.remove(this);
+        CHANNELS.remove(this);
     }
 
     @Override
     protected String getDeviceName() {
-        return devicename;
+        return _devicename;
     }
 
     @Override
     protected String getDeviceNumber() {
-        return devicenumber;
+        return _devicenumber;
     }
 
 }
