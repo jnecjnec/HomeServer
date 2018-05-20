@@ -5,7 +5,6 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
-import java.nio.charset.Charset;
 import static src.BaseHandler.channels;
 
 /*
@@ -29,7 +28,7 @@ public class ClientHandler extends BaseHandler implements ResponseListener {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        Charset chrst = Charset.forName("UTF-8");
+        //Charset chrst = Charset.forName("UTF-8");
 
         int i = ((ByteBuf) msg).readableBytes();
         String in = (String) ((ByteBuf) msg).readCharSequence(i, chrst);
@@ -61,7 +60,7 @@ public class ClientHandler extends BaseHandler implements ResponseListener {
 
     private void DoResponse(String message, String devicename, String devicenumber) {
         if (chanel != null) {
-            Charset chrst = Charset.forName("UTF-8");
+            //Charset chrst = Charset.forName("UTF-8");
             String response = String.format("HomeServer.%s.%s.%s", devicename, devicenumber, message);
             CharSequence ch = response;
             ByteBuf mess = Unpooled.buffer(ch.length());

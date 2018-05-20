@@ -10,11 +10,8 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -28,7 +25,7 @@ public class DeviceHandler extends BaseHandler {
     String devicename = "";
     String devicenumber = "";
     String response = "";
-    ResponseListener listener = null;
+    ResponseListener _listener = null;
 
     public DeviceHandler(String remoteAddress) {
         super();
@@ -39,7 +36,7 @@ public class DeviceHandler extends BaseHandler {
     public void writeCommand(String command, ResponseListener listener) {
         if (finished) {
             finished = false;
-            this.listener = listener;
+            _listener = listener;
             response = "Unknown";
 
             String[] allovedCommands = new String[]{"Open", "Close", "State"};
@@ -47,13 +44,13 @@ public class DeviceHandler extends BaseHandler {
 
             if (chanel != null) {
                 if (commandList.contains(command)) {
-                    Charset chrst = Charset.forName("UTF-8");
+                    // Charset chrst = Charset.forName("UTF-8");
                     CharSequence ch = command;
                     ByteBuf message = Unpooled.buffer(ch.length());
                     message.writeCharSequence(ch, chrst);
 
                     chanel.writeAndFlush(message);
-               
+
                 } else {
                     response = "UnknownCommand";
                     DoListener(listener, response, devicename, devicenumber);
@@ -71,14 +68,12 @@ public class DeviceHandler extends BaseHandler {
     private void DoListener(ResponseListener listener, String message, String devicename, String devicenumber) {
         if (listener != null) {
             listener.Response(message, devicename, devicenumber);
-            listener = null;
-
         }
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        Charset chrst = Charset.forName("UTF-8");
+        // Charset chrst = Charset.forName("UTF-8");
         int i = ((ByteBuf) msg).readableBytes();
         String in = (String) ((ByteBuf) msg).readCharSequence(i, chrst);
 
@@ -91,8 +86,8 @@ public class DeviceHandler extends BaseHandler {
             response = parts[0];
             finished = true;
 
-            DoListener(this.listener, response, devicename, devicenumber);
-
+            DoListener(_listener, response, devicename, devicenumber);
+            _listener = null;
         }
     }
 

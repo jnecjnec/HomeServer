@@ -8,9 +8,7 @@ package src;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.group.ChannelGroup;
-import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.util.concurrent.GlobalEventExecutor;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,23 +19,23 @@ import java.util.List;
 @Sharable
 public abstract class BaseHandler extends ChannelInboundHandlerAdapter {
 
-    //protected static final ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+    protected Charset chrst = Charset.forName("UTF-8");
     protected static final List<BaseHandler> channels = new ArrayList<BaseHandler>();
-    
-    public BaseHandler(){
+
+    public BaseHandler() {
         super();
     }
-    
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         // TODO Auto-generated method stub
         super.channelActive(ctx);
-       // System.out.println("Base handler added ");
+        // System.out.println("Base handler added ");
     }
 
     protected abstract void writeCommand(String command, ResponseListener listener);
-    
+
     protected abstract String getDeviceName();
-    
+
     protected abstract String getDeviceNumber();
 }
