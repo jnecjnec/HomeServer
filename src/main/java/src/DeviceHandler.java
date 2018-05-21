@@ -12,6 +12,8 @@ import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -24,18 +26,16 @@ public class DeviceHandler extends BaseHandler {
     private static final String[] ALLOVED_COMMANDS = new String[]{"Open", "Close", "State"};
 
     private Channel _chanel = null;
-    private boolean _finished = true;
     private String _devicename = "";
     private String _devicenumber = "";
-    private String _esponse = "";
+    private String _response = "";
     private ResponseListener _listener = null;
 
     @Override
     public void writeCommand(String command, ResponseListener listener) {
-        if (_finished) {
-            _finished = false;
+        if (_listener == null) {
             _listener = listener;
-            _esponse = "Unknown";
+            _response = "Unknown";
 
             List<String> commandList = Arrays.asList(ALLOVED_COMMANDS);
 
@@ -47,24 +47,40 @@ public class DeviceHandler extends BaseHandler {
 
                     _chanel.writeAndFlush(message);
 
+                    long writeTime = System.currentTimeMillis();
+                    do {
+                        long thisTime = System.currentTimeMillis();
+                        if ((thisTime - writeTime) > 10000) {
+                            _response = "Timeouted";
+                            DoListener(_listener, _response, _devicename, _devicenumber);
+                            _listener = null;
+                        } else {
+                            try {
+                                Thread.sleep(100);
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(DeviceHandler.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    } while (_listener != null);
+
                 } else {
-                    _esponse = "UnknownCommand";
-                    DoListener(listener, _esponse, _devicename, _devicenumber);
+                    _response = "UnknownCommand";
+                    DoListener(listener, _response, _devicename, _devicenumber);
                 }
             } else {
-                _esponse = "Disconnected";
-                DoListener(listener, _esponse, _devicename, _devicenumber);
+                _response = "Disconnected";
+                DoListener(listener, _response, _devicename, _devicenumber);
             }
         } else {
-            _esponse = "Busy";
-            DoListener(listener, _esponse, _devicename, _devicenumber);
+            _response = "Busy";
+            DoListener(listener, _response, _devicename, _devicenumber);
         }
     }
 
     private void DoListener(ResponseListener listener, String message, String devicename, String devicenumber) {
         if (listener != null) {
             listener.Response(message, devicename, devicenumber);
-        }
+        } 
     }
 
     @Override
@@ -93,9 +109,8 @@ public class DeviceHandler extends BaseHandler {
             }
 
         } else if ((parts.length == 1) & (commandList.contains(parts[0])) & (!_devicename.isEmpty())) {
-            _esponse = parts[0];
-            _finished = true;
-            DoListener(_listener, _esponse, _devicename, _devicenumber);
+            _response = parts[0];
+            DoListener(_listener, _response, _devicename, _devicenumber);
             _listener = null;
         } else {
             ctx.close();
