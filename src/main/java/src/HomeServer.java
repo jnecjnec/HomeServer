@@ -36,7 +36,7 @@ public class HomeServer {
         _devicePort = devicePort;
     }
 
-    public static void runServer() throws InterruptedException, CertificateException, SSLException {
+    public void runServer() throws InterruptedException, CertificateException, SSLException {
         final SslContext sslCtx;
         if (_ssl) {
             SelfSignedCertificate ssc = new SelfSignedCertificate();
