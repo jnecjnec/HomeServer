@@ -12,7 +12,8 @@
       <Button  fx:id="runButton" layoutX="19.0" layoutY="191.0" mnemonicParsing="false" onAction="#handleStartServerAction" text="Run server" AnchorPane.leftAnchor="19.0" AnchorPane.topAnchor="191.0" />
       <Button fx:id="stopButton" layoutX="104.0" layoutY="191.0" mnemonicParsing="false" onAction="#handleStopServerAction" text="Stop server" AnchorPane.leftAnchor="104.0" AnchorPane.topAnchor="191.0" />
       <CheckBox fx:id="sslCheckBox" layoutX="18.0" layoutY="157.0" mnemonicParsing="false" text="Use ssl for  clients" AnchorPane.leftAnchor="18.0" AnchorPane.topAnchor="157.0" />
-      <Spinner fx:id="clientPortSpinner" editable="true" layoutX="18.0" layoutY="125.0" prefHeight="25.0" prefWidth="160.0" AnchorPane.leftAnchor="18.0" AnchorPane.topAnchor="125.0" />
+      <Spinner fx:id="clientPortSpinner" editable="true" layoutX="18.0" layoutY="125.0" prefHeight="25.0" prefWidth="160.0" AnchorPane.leftAnchor="18.0" AnchorPane.topAnchor="125.0" >
+      </Spinner>
       <Spinner fx:id="devicesPortSpinner" editable="true" layoutX="18.0" layoutY="73.0" prefHeight="25.0" prefWidth="160.0" AnchorPane.leftAnchor="18.0" AnchorPane.topAnchor="73.0" />
       <Label layoutX="18.0" layoutY="56.0" text="Devices port" AnchorPane.leftAnchor="18.0" AnchorPane.topAnchor="56.0" />
       <Label layoutX="18.0" layoutY="108.0" text="Clients port" AnchorPane.leftAnchor="18.0" AnchorPane.topAnchor="108.0" />

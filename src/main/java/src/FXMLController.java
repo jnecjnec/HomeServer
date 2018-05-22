@@ -8,6 +8,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 
 public class FXMLController implements Initializable {
 
@@ -21,10 +22,13 @@ public class FXMLController implements Initializable {
     private Button stopButton;
 
     @FXML
-    private Spinner clientPortSpinner;
+    private Spinner<Integer> clientPortSpinner;
 
     @FXML
-    private Spinner devicesPortSpinner;
+    private Spinner<Integer> devicesPortSpinner;
+
+    SpinnerValueFactory<Integer> clientPortSpinnerValueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 99999, 8007);
+    SpinnerValueFactory<Integer> devicePortSpinnerValueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 99999, 8008);
 
     ServerStartStopListener startStopListener;
 
@@ -39,7 +43,7 @@ public class FXMLController implements Initializable {
     @FXML
     void handleStartServerAction(ActionEvent event) {
         if (startStopListener != null) {
-            startStopListener.serverStart(8007, 8008, sslCheckBox.isIndeterminate());
+            startStopListener.serverStart(clientPortSpinnerValueFactory.getValue(), devicePortSpinnerValueFactory.getValue(), sslCheckBox.isIndeterminate());
         }
         runButton.setDisable(true);
         stopButton.setDisable(false);
@@ -63,7 +67,8 @@ public class FXMLController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         stopButton.setDisable(true);
-      //  clientPortSpinner.setv 
-      //  devicesPortSpinner
+
+        clientPortSpinner.setValueFactory(clientPortSpinnerValueFactory);
+        devicesPortSpinner.setValueFactory(devicePortSpinnerValueFactory);
     }
 }
