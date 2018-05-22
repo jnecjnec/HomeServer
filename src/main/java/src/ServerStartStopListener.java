@@ -9,8 +9,10 @@ package src;
  *
  * @author jnec
  */
-public interface ResponseListener {
-    
-    public void Response(String message, String devicename, String devicenumber);
-    
+public interface ServerStartStopListener {
+
+    public void serverStart(int clientPort, int devicePort, boolean ssl);
+
+    public void serverStop();
+
 }
