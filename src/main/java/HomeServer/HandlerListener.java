@@ -14,8 +14,8 @@ public interface HandlerListener {
         evtAdd, evtRemove;        
     }
     
-    public void onClientChenge(String ip, String name, EventType evtype);
+    public void onClientChange(String ip, EventType evtype);
     
-    public void onDeviceChange(String ip, String name, EventType evtype);
+    public void onDeviceChange(String ip, String name, String number, EventType evtype);
     
 }

@@ -36,10 +36,11 @@
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <TableView layoutX="-16.0" layoutY="72.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <TableView fx:id="tableViewDeviceList" layoutX="-16.0" layoutY="72.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                           <columns>
-                            <TableColumn prefWidth="113.0" text="C1" />
-                            <TableColumn prefWidth="83.00006103515625" text="C2" />
+                            <TableColumn fx:id="deviceListIpAddress" prefWidth="78.33331298828125" text="Ip Address" />
+                            <TableColumn fx:id="deviceListName" prefWidth="75.33331298828125" text="Name" />
+                              <TableColumn fx:id="deviceListNumber" prefWidth="40.0" text="Number" />
                           </columns>
                         </TableView>
                      </children></AnchorPane>
@@ -47,7 +48,14 @@
                 </Tab>
                 <Tab text="Client list">
                     <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                        <TableView fx:id="tableViewClientList" layoutX="-16.0" layoutY="72.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                          <columns>
+                            <TableColumn fx:id="clientListIpAddress" prefWidth="193.66668701171875" text="Ip Address" />
+                          </columns>
+                        </TableView>
+                     </children></AnchorPane>
                     </content>
                 </Tab>
             </tabs>

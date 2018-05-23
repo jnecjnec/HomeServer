@@ -5,7 +5,9 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
-import static HomeServer.BaseHandler.CHANNELS;
+import static HomeServer.BaseHandler.DEVICES;
+import static HomeServer.HandlerListener.EventType.evtAdd;
+import static HomeServer.HandlerListener.EventType.evtRemove;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -21,7 +23,7 @@ public class ClientHandler extends BaseHandler implements ResponseListener {
 
     private static final String PREFIX = "HomeServer.";
     private static final String RESPONSE_FORMAT = PREFIX + "%s.%s.%s";
-    private Channel _chanel = null;
+   // private Channel _chanel = null;
 
     public ClientHandler(HandlerListener listener) {
         super(listener);
@@ -36,20 +38,20 @@ public class ClientHandler extends BaseHandler implements ResponseListener {
         if (l == 0) {
             //chanel = ctx.channel();
             String[] parts = in.split("\\.");
-            String device = parts[1];
+            String deviceName = parts[1];
             String devicenumber = parts[2];
             String cmd = parts[3];
             boolean result = false;
             // send to device and should wait
-            for (BaseHandler c : CHANNELS) {
-                if ((c.getDeviceNumber().equals(devicenumber)) & (c.getDeviceName().equals(device))) {
+            for (Device device : DEVICES) {
+                if ((device.getDeviceNumber().equals(devicenumber)) & (device.getDeviceName().equals(deviceName))) {
                     result = true;
-                    c.writeCommand(cmd, this);
+                    ClientRequest clientRequest = new ClientRequest(ctx, this);
+                    device.writeCommand(cmd, clientRequest);
                 }
             }
-
             if (!result) {
-                DoResponse("NotFound", device, devicenumber);
+                DoResponse(ctx.channel(), "NotFound", deviceName, devicenumber);
             }
 
         } else {
@@ -57,16 +59,23 @@ public class ClientHandler extends BaseHandler implements ResponseListener {
         }
     }
 
-    private void DoResponse(String message, String devicename, String devicenumber) {
-        if (_chanel != null) {
+    private void DoResponse(Channel channel, String message, String devicename, String devicenumber) {
+        if (channel != null) {
             String response = String.format(RESPONSE_FORMAT, devicename, devicenumber, message);
             CharSequence ch = response;
             ByteBuf mess = Unpooled.buffer(ch.length());
             mess.writeCharSequence(ch, CHARSET);
-            _chanel.writeAndFlush(mess);
+            channel.writeAndFlush(mess);
         }
     }
 
+    
+     private void DoHandlerListener(String ip, HandlerListener.EventType evt) {
+        if (_handlerListener != null) {
+            _handlerListener.onClientChange(ip, evt);
+        }
+    }
+     
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
         // ctx.flush();
@@ -75,9 +84,16 @@ public class ClientHandler extends BaseHandler implements ResponseListener {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
-        _chanel = ctx.channel();
+       // _chanel = ctx.channel();
+        DoHandlerListener(ctx.channel().remoteAddress().toString(), evtAdd);
     }
 
+     @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        super.channelInactive(ctx);
+        DoHandlerListener(ctx.channel().remoteAddress().toString(), evtRemove);
+    }
+    
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         // Close the connection when an exception is raised.
@@ -86,23 +102,8 @@ public class ClientHandler extends BaseHandler implements ResponseListener {
     }
 
     @Override
-    protected void writeCommand(String command, ResponseListener listener) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    protected String getDeviceName() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    protected String getDeviceNumber() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void Response(String message, String devicename, String devicenumber) {
-        DoResponse(message, devicename, devicenumber);
+    public void Response(Channel channel, String message, String devicename, String devicenumber) {
+        DoResponse(channel, message, devicename, devicenumber);
     }
 
 }

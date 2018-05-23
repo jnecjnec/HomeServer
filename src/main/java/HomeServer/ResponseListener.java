@@ -5,12 +5,14 @@
  */
 package HomeServer;
 
+import io.netty.channel.Channel;
+
 /**
  *
  * @author jnec
  */
 public interface ResponseListener {
     
-    public void Response(String message, String devicename, String devicenumber);
+    public void Response(Channel channel, String message, String devicename, String devicenumber);
     
 }
