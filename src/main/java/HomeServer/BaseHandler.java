@@ -21,10 +21,13 @@ public abstract class BaseHandler extends ChannelInboundHandlerAdapter {
 
     protected static Charset CHARSET = Charset.forName("UTF-8");
     protected static final List<BaseHandler> CHANNELS = new ArrayList<BaseHandler>();
-
-    public BaseHandler() {
+    protected HandlerListener _handlerListener = null;
+    
+    public BaseHandler(HandlerListener handlerListener) {
         super();
+         _handlerListener = handlerListener;
     }
+   
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {

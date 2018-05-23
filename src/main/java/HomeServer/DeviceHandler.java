@@ -5,7 +5,6 @@
  */
 package HomeServer;
 
-import HomeServer.BaseHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -31,6 +30,10 @@ public class DeviceHandler extends BaseHandler {
     private String _devicenumber = "";
     private String _response = "";
     private ResponseListener _listener = null;
+
+    public DeviceHandler(HandlerListener listener) {
+        super(listener);
+    }
 
     @Override
     public void writeCommand(String command, ResponseListener listener) {
@@ -81,7 +84,7 @@ public class DeviceHandler extends BaseHandler {
     private void DoListener(ResponseListener listener, String message, String devicename, String devicenumber) {
         if (listener != null) {
             listener.Response(message, devicename, devicenumber);
-        } 
+        }
     }
 
     @Override

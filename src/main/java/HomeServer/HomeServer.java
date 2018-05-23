@@ -33,7 +33,7 @@ public class HomeServer {
     private EventLoopGroup workerGroup = null;
     private ServerBootstrap bootstrap = null;
     private ChannelFuture chanel = null;
-
+   
     public HomeServer() {
         
     }

@@ -1,6 +1,5 @@
 package HomeServer;
 
-import HomeServer.BaseHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -23,6 +22,10 @@ public class ClientHandler extends BaseHandler implements ResponseListener {
     private static final String PREFIX = "HomeServer.";
     private static final String RESPONSE_FORMAT = PREFIX + "%s.%s.%s";
     private Channel _chanel = null;
+
+    public ClientHandler(HandlerListener listener) {
+        super(listener);
+    }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {

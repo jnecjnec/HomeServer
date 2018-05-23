@@ -18,6 +18,7 @@ public class Main extends Application implements ServerStartStopListener {
 
     HomeServer homeServerClients = null;
     HomeServer homeServerDevices = null;
+    FXMLController controller = null;
 
     public static void main(String[] args) throws Exception {
         launch(args);
@@ -31,10 +32,11 @@ public class Main extends Application implements ServerStartStopListener {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("../fxml/Scene.fxml"));
         Parent root = loader.load();
         Scene scene = new Scene(root);
-        FXMLController controller = loader.getController();
+        controller = loader.getController();
         controller.setServerStartStopListener(this);
 
         stage.setScene(scene);
+        stage.setTitle("HomeServer");
 
         stage.show();
     }
@@ -42,8 +44,8 @@ public class Main extends Application implements ServerStartStopListener {
     @Override
     public void serverStart(int clientPort, int devicePort, boolean ssl) {
         try {
-            homeServerClients.runServer(clientPort, ssl, new ClientHandler());
-            homeServerDevices.runServer(devicePort, false, new DeviceHandler());
+            homeServerClients.runServer(clientPort, ssl, new ClientHandler(controller));
+            homeServerDevices.runServer(devicePort, false, new DeviceHandler(controller));
         } catch (InterruptedException | CertificateException | SSLException ex) {
             Logger.getLogger(FXMLController.class.getName()).log(Level.SEVERE, null, ex);
             homeServerClients.stopServer();

@@ -9,8 +9,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import HomeServer.HandlerListener;
 
-public class FXMLController implements Initializable {
+public class FXMLController implements Initializable, HandlerListener {
 
     @FXML
     private CheckBox sslCheckBox;
@@ -70,5 +71,15 @@ public class FXMLController implements Initializable {
 
         clientPortSpinner.setValueFactory(clientPortSpinnerValueFactory);
         devicesPortSpinner.setValueFactory(devicePortSpinnerValueFactory);
+    }
+
+    @Override
+    public void onClientChenge(String ip, String name, EventType evtype) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void onDeviceChange(String ip, String name, EventType evtype) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
