@@ -5,20 +5,23 @@
  */
 package HomeServer.Handlers.User;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
 /**
  *
  * @author jnec
  */
 public class User {
     
-    private String _name;
-    private String _passwordHash;
-    private String _Ip;
+    private final StringProperty _name  = new SimpleStringProperty("");
+    private final StringProperty _passwordHash = new SimpleStringProperty("");
+    private final StringProperty _Ip = new SimpleStringProperty("");
 
     /**
      * @return the _name
      */
-    public String getName() {
+    public StringProperty getName() {
         return _name;
     }
 
@@ -26,13 +29,13 @@ public class User {
      * @param name the _name to set
      */
     public void setName(String name) {
-        this._name = name;
+        _name.setValue(name); 
     }
 
     /**
      * @return the _passwordHash
      */
-    public String getPasswordHash() {
+    public StringProperty getPasswordHash() {
         return _passwordHash;
     }
 
@@ -40,23 +43,21 @@ public class User {
      * @param password the _passwordHash to set
      */
     public void setPasswordHash(String password) {
-        this._passwordHash = password;
+        _passwordHash.setValue(password);
     }
 
     /**
      * @return the _Ip
      */
-    public String getIp() {
+    public StringProperty getIp() {
         return _Ip;
     }
+    
 
     /**
-     * @param _Ip the _Ip to set
+     * @param Ip
      */
-    public void setIp(String _Ip) {
-        this._Ip = _Ip;
-    }
-
-    
-    
+    public void setIp(String Ip) {
+        _Ip.setValue(Ip);
+    }    
 }

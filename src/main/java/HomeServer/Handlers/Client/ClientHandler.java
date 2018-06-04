@@ -50,7 +50,7 @@ public class ClientHandler extends BaseHandler implements ResponseListener {
             cmd = parts[5];
 
             for (User u : getUsers()) {
-                if (id.equals(PREFIX) & u.getName().equals(userName) & u.getPasswordHash().equals(clientHash)) {
+                if (id.equals(PREFIX) & u.getName().getValue().equals(userName) & u.getPasswordHash().getValue().equals(clientHash)) {
                     u.setIp(ctx.channel().remoteAddress().toString());
                     accepted = true;
                     break;
@@ -62,7 +62,7 @@ public class ClientHandler extends BaseHandler implements ResponseListener {
             boolean result = false;
             // send to device and should wait
             for (Device device : getDevices()) {
-                if ((device.getDeviceNumber().equals(devicenumber)) & (device.getDeviceName().equals(deviceName))) {
+                if ((device.getDeviceNumber().getValue().equals(devicenumber)) & (device.getDeviceName().getValue().equals(deviceName))) {
                     result = true;
                     ClientRequest clientRequest = new ClientRequest(ctx, this);
                     device.writeCommand(cmd, clientRequest);
@@ -101,7 +101,7 @@ public class ClientHandler extends BaseHandler implements ResponseListener {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 
         for (User u : getUsers()) {
-            if (u.getIp().equals(ctx.channel().remoteAddress().toString())) {
+            if (u.getIp().getValue().equals(ctx.channel().remoteAddress().toString())) {
                 u.setIp("");
                 break;
             }

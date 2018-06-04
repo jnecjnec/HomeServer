@@ -114,9 +114,8 @@ public class FXMLController implements Initializable {
         dialog.setTitle("HomeServer");
         dialog.setHeaderText("Add user");
 
-         // Set the icon (must be included in the project).
-         // dialog.setGraphic(new ImageView(this.getClass().getResource("login.png").toString()));
-
+        // Set the icon (must be included in the project).
+        // dialog.setGraphic(new ImageView(this.getClass().getResource("login.png").toString()));
         // Set the button types.
         ButtonType loginButtonType = new ButtonType("Add user", ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
@@ -174,12 +173,11 @@ public class FXMLController implements Initializable {
             }
         });
     }
-    
+
     @FXML
     void handleDelUser(ActionEvent event) {
         tableViewUserList.getItems().removeAll(tableViewUserList.getSelectionModel().getSelectedItems());
     }
-    
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -188,11 +186,11 @@ public class FXMLController implements Initializable {
         clientPortSpinner.setValueFactory(clientPortSpinnerValueFactory);
         devicesPortSpinner.setValueFactory(devicePortSpinnerValueFactory);
 
-        deviceListIpAddress.setCellValueFactory(new PropertyValueFactory<>("Ip"));
-        deviceListName.setCellValueFactory(new PropertyValueFactory<>("DeviceName"));
-        deviceListNumber.setCellValueFactory(new PropertyValueFactory<>("DeviceNumber"));
-        
-        userListName.setCellValueFactory(new PropertyValueFactory<>("name"));
-        userListIp.setCellValueFactory(new PropertyValueFactory<>("Ip"));
+        deviceListIpAddress.setCellValueFactory(cellData -> cellData.getValue().getIp());
+        deviceListName.setCellValueFactory(cellData -> cellData.getValue().getDeviceName());
+        deviceListNumber.setCellValueFactory(cellData -> cellData.getValue().getDeviceNumber());
+
+        userListName.setCellValueFactory(cellData -> cellData.getValue().getName());
+        userListIp.setCellValueFactory(cellData -> cellData.getValue().getIp());
     }
 }

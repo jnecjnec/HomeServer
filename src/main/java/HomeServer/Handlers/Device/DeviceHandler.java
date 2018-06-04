@@ -38,7 +38,7 @@ public class DeviceHandler extends BaseHandler {
         if ((parts.length == 3) & (parts[0].equals("Identification"))) {
             boolean exists = false;
             for (Device d : getDevices()) {
-                if ((d.getDeviceNumber().equals(parts[2])) & (d.getDeviceName().equals(parts[1]))) {
+                if ((d.getDeviceNumber().getValue().equals(parts[2])) & (d.getDeviceName().getValue().equals(parts[1]))) {
                     exists = true;
                     break;
                 }

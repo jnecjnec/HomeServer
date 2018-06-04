@@ -67,9 +67,9 @@
                                     <children>
                                         <TableView fx:id="tableViewDeviceList" layoutX="-16.0" layoutY="72.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                             <columns>
-                                                <TableColumn fx:id="deviceListIpAddress" maxWidth="1.7976931348623157E308" prefWidth="61.0" text="Ip Address" />
                                                 <TableColumn fx:id="deviceListName" maxWidth="1.7976931348623157E308" minWidth="0.0" prefWidth="79.0" text="Name" />
                                                 <TableColumn fx:id="deviceListNumber" maxWidth="1.7976931348623157E308" minWidth="2.0" prefWidth="56.0" text="Number" />
+                                                <TableColumn fx:id="deviceListIpAddress" maxWidth="1.7976931348623157E308" prefWidth="61.0" text="Ip Address" />
                                             </columns>
                                         </TableView>
                                     </children>

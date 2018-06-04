@@ -14,6 +14,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 /**
  *
@@ -23,28 +25,29 @@ public class Device {
 
     private static final String[] ALLOVED_COMMANDS = new String[]{"Open", "Close", "State"};
 
-    private String _deviceName = "";
-    private String _deviceNumber = "";
+    private final StringProperty _deviceName  = new SimpleStringProperty("");
+    private final StringProperty _deviceNumber  = new SimpleStringProperty("");
+   
     private ClientRequest _clientRequest = null;
     private ChannelHandlerContext _chanelHandlerContext = null;
 
     public Device(String name, String number, ChannelHandlerContext channelHandlerContext) {
-        _deviceName = name;
-        _deviceNumber = number;
+        _deviceName.setValue(name); 
+        _deviceNumber.setValue(number);
         _chanelHandlerContext = channelHandlerContext;
     }
 
     /**
      * @return the _deviceName
      */
-    public String getDeviceName() {
+    public StringProperty getDeviceName() {
         return _deviceName;
     }
 
     /**
      * @return the _deviceNumber
      */
-    public String getDeviceNumber() {
+    public StringProperty getDeviceNumber() {
         return _deviceNumber;
     }
 
@@ -55,13 +58,13 @@ public class Device {
         return _chanelHandlerContext;
     }
 
-    public String getIp() {
+    public StringProperty getIp() {
         String str = "";
         if (_chanelHandlerContext != null) {
             str = _chanelHandlerContext.channel().remoteAddress().toString();
         }
 
-        return str;
+        return new SimpleStringProperty(str);
     }
 
     public void writeCommand(String command, ClientRequest clientRequest) {
@@ -111,7 +114,7 @@ public class Device {
 
     private void DoSendResponse(String message, ClientRequest clientRequest) {
         if (clientRequest != null) {
-            clientRequest.Response(message, _deviceName, _deviceNumber);
+            clientRequest.Response(message, _deviceName.getValue(), _deviceNumber.getValue());
         }
     }
 
