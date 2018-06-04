@@ -3,9 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package HomeServer;
+package HomeServer.Handlers.Device;
 
-import static HomeServer.BaseHandler.CHARSET;
+import HomeServer.Handlers.Client.ClientRequest;
+import static HomeServer.Handlers.BaseHandler.CHARSET;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;

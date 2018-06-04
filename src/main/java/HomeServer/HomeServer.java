@@ -5,6 +5,7 @@
  */
 package HomeServer;
 
+import HomeServer.Handlers.BaseHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -27,15 +28,15 @@ import javax.net.ssl.SSLException;
  * @author jnec
  */
 public class HomeServer {
-    
+
     // Configure the server.
     private EventLoopGroup bossGroup = null;
     private EventLoopGroup workerGroup = null;
     private ServerBootstrap bootstrap = null;
     private ChannelFuture chanel = null;
-   
+    
     public HomeServer() {
-        
+
     }
 
     public void runServer(int port, boolean ssl, BaseHandler handler) throws InterruptedException, CertificateException, SSLException {
@@ -70,8 +71,8 @@ public class HomeServer {
                 });
 
         // Start the server.
-        chanel = bootstrap.bind(port); 
-       
+        chanel = bootstrap.bind(port);
+
     }
 
     public void stopServer() {

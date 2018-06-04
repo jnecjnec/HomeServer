@@ -1,13 +1,15 @@
-package HomeServer;
+package HomeServer.Handlers.Client;
 
+import HomeServer.Handlers.Device.Device;
+import HomeServer.Handlers.BaseHandler;
+import HomeServer.ResponseListener;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
-import static HomeServer.BaseHandler.DEVICES;
-import static HomeServer.HandlerListener.EventType.evtAdd;
-import static HomeServer.HandlerListener.EventType.evtRemove;
+import HomeServer.Handlers.ObservableListWrapper;
+import HomeServer.Handlers.User.User;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -21,12 +23,11 @@ import static HomeServer.HandlerListener.EventType.evtRemove;
 @Sharable
 public class ClientHandler extends BaseHandler implements ResponseListener {
 
-    private static final String PREFIX = "HomeServer.";
-    private static final String RESPONSE_FORMAT = PREFIX + "%s.%s.%s";
-   // private Channel _chanel = null;
+    private static final String PREFIX = "HomeServer";
+    private static final String RESPONSE_FORMAT = PREFIX + ".%s.%s.%s";
 
-    public ClientHandler(HandlerListener listener) {
-        super(listener);
+    public ClientHandler(ObservableListWrapper observableListWrapper) {
+        super(observableListWrapper);
     }
 
     @Override
@@ -34,16 +35,33 @@ public class ClientHandler extends BaseHandler implements ResponseListener {
         int i = ((ByteBuf) msg).readableBytes();
         String in = (String) ((ByteBuf) msg).readCharSequence(i, CHARSET);
 
-        int l = in.indexOf(PREFIX);
-        if (l == 0) {
-            //chanel = ctx.channel();
-            String[] parts = in.split("\\.");
-            String deviceName = parts[1];
-            String devicenumber = parts[2];
-            String cmd = parts[3];
+        boolean accepted = false;
+        String deviceName = "";
+        String devicenumber = "";
+        String cmd = "";
+
+        String[] parts = in.split("\\.");
+        if (parts.length == 6) {
+            String id = parts[0];
+            String userName = parts[1];
+            String clientHash = parts[2];
+            deviceName = parts[3];
+            devicenumber = parts[4];
+            cmd = parts[5];
+
+            for (User u : getUsers()) {
+                if (id.equals(PREFIX) & u.getName().equals(userName) & u.getPasswordHash().equals(clientHash)) {
+                    u.setIp(ctx.channel().remoteAddress().toString());
+                    accepted = true;
+                    break;
+                }
+            }
+        }
+
+        if (accepted) {
             boolean result = false;
             // send to device and should wait
-            for (Device device : DEVICES) {
+            for (Device device : getDevices()) {
                 if ((device.getDeviceNumber().equals(devicenumber)) & (device.getDeviceName().equals(deviceName))) {
                     result = true;
                     ClientRequest clientRequest = new ClientRequest(ctx, this);
@@ -69,13 +87,6 @@ public class ClientHandler extends BaseHandler implements ResponseListener {
         }
     }
 
-    
-     private void DoHandlerListener(String ip, HandlerListener.EventType evt) {
-        if (_handlerListener != null) {
-            _handlerListener.onClientChange(ip, evt);
-        }
-    }
-     
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
         // ctx.flush();
@@ -84,16 +95,21 @@ public class ClientHandler extends BaseHandler implements ResponseListener {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
-       // _chanel = ctx.channel();
-        DoHandlerListener(ctx.channel().remoteAddress().toString(), evtAdd);
     }
 
-     @Override
+    @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+
+        for (User u : getUsers()) {
+            if (u.getIp().equals(ctx.channel().remoteAddress().toString())) {
+                u.setIp("");
+                break;
+            }
+        }
+
         super.channelInactive(ctx);
-        DoHandlerListener(ctx.channel().remoteAddress().toString(), evtRemove);
     }
-    
+
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         // Close the connection when an exception is raised.

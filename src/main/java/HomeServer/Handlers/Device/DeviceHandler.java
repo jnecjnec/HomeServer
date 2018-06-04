@@ -3,11 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package HomeServer;
+package HomeServer.Handlers.Device;
 
-import HomeServer.HandlerListener.EventType;
-import static HomeServer.HandlerListener.EventType.evtAdd;
-import static HomeServer.HandlerListener.EventType.evtRemove;
+import HomeServer.Handlers.BaseHandler;
+import HomeServer.Handlers.ObservableListWrapper;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
@@ -23,14 +22,8 @@ public class DeviceHandler extends BaseHandler {
 
     private static final String[] ALLOVED_RESPONSES = new String[]{"Opened", "Closesed", "Opening", "Closeing"};
    
-    public DeviceHandler(HandlerListener listener) {
-        super(listener);
-    }
-
-    private void DoHandlerListener(Device dev, EventType evt) {
-        if (_handlerListener != null) {
-            _handlerListener.onDeviceChange(dev.getIp(), dev.getDeviceName(), dev.getDeviceNumber(), evt);
-        }
+    public DeviceHandler(ObservableListWrapper observableListWrapper) {
+        super(observableListWrapper);
     }
 
     @Override
@@ -44,7 +37,7 @@ public class DeviceHandler extends BaseHandler {
 
         if ((parts.length == 3) & (parts[0].equals("Identification"))) {
             boolean exists = false;
-            for (Device d : DEVICES) {
+            for (Device d : getDevices()) {
                 if ((d.getDeviceNumber().equals(parts[2])) & (d.getDeviceName().equals(parts[1]))) {
                     exists = true;
                     break;
@@ -55,13 +48,12 @@ public class DeviceHandler extends BaseHandler {
                 ctx.close();
             } else {
                 Device dev = new Device(parts[1], parts[2], ctx);
-                DEVICES.add(dev);
-                DoHandlerListener(dev, evtAdd);
+                getDevices().add(dev);
             }
 
-        } else if ((parts.length == 1) & (commandList.contains(parts[0])) & (DEVICES.size() > 0)) {
+        } else if ((parts.length == 1) & (commandList.contains(parts[0])) & (getDevices().size() > 0)) {
             Device responseDevice = null;
-            for (Device device : DEVICES) {
+            for (Device device : getDevices()) {
                 if ((device.getChanelHandlerContext().equals(ctx))) {
                     responseDevice = device;
                     break;
@@ -88,15 +80,14 @@ public class DeviceHandler extends BaseHandler {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         Device deviceToRemove = null;
-        for (Device device : DEVICES) {
+        for (Device device : getDevices()) {
             if ((device.getChanelHandlerContext().equals(ctx))) {
                 deviceToRemove = device;
                 break;
             }
         }
         if (deviceToRemove != null) {
-            DoHandlerListener(deviceToRemove, evtRemove);
-            DEVICES.remove(deviceToRemove);
+            getDevices().remove(deviceToRemove);
         }
     }
 }
