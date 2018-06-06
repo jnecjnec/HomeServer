@@ -16,7 +16,6 @@ import java.util.Optional;
 import javafx.application.Platform;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 
 import javafx.geometry.Insets;
 import javafx.scene.Node;

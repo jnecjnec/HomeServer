@@ -19,14 +19,14 @@ public class ObservableListWrapper {
     private final ObservableList<User> users = FXCollections.observableArrayList();
     private final ObservableList<Device> devices = FXCollections.observableArrayList();
   
-    public ObservableList getUsers() {
+    public ObservableList<User> getUsers() {
         return users;
     }
 
     public User findUserByName(String name) {
         User u = null;
         for (User i : users) {
-            if (i.getName().equals(name)) {
+            if (i.getName().getValue().equals(name)) {
                 u = i;
                 break;
             }
@@ -54,7 +54,7 @@ public class ObservableListWrapper {
         }
     }
     
-     public ObservableList getDevices() {
+     public ObservableList<Device> getDevices() {
         return devices;
     }
 }

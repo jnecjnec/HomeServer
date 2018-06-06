@@ -75,12 +75,12 @@ public class Device {
 
             if (_chanelHandlerContext.channel() != null) {
                 if (commandList.contains(command)) {
-                    CharSequence ch = command;
+                   /* CharSequence ch = command;
                     ByteBuf message = Unpooled.buffer(ch.length());
                     message.writeCharSequence(ch, CHARSET);
-
-                    _chanelHandlerContext.channel().writeAndFlush(message);
-
+*/
+                    _chanelHandlerContext.channel().writeAndFlush(command);
+                    
                     long writeTime = System.currentTimeMillis();
                     do {
                         long thisTime = System.currentTimeMillis();

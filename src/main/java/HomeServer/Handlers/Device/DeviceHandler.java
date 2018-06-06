@@ -7,11 +7,12 @@ package HomeServer.Handlers.Device;
 
 import HomeServer.Handlers.BaseHandler;
 import HomeServer.Handlers.ObservableListWrapper;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -27,13 +28,10 @@ public class DeviceHandler extends BaseHandler {
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        int i = ((ByteBuf) msg).readableBytes();
-        String in = (String) ((ByteBuf) msg).readCharSequence(i, CHARSET);
-
+    protected void channelRead0(ChannelHandlerContext ctx, String msg) {
         List<String> commandList = Arrays.asList(ALLOVED_RESPONSES);
 
-        String[] parts = in.split("\\.");
+        String[] parts = msg.split("\\.");
 
         if ((parts.length == 3) & (parts[0].equals("Identification"))) {
             boolean exists = false;

@@ -31,10 +31,7 @@ public class ClientHandler extends BaseHandler implements ResponseListener {
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        int i = ((ByteBuf) msg).readableBytes();
-        String in = (String) ((ByteBuf) msg).readCharSequence(i, CHARSET);
-
+    public void channelRead0(ChannelHandlerContext ctx, String in) {
         boolean accepted = false;
         String deviceName = "";
         String devicenumber = "";

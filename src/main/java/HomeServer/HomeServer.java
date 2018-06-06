@@ -15,6 +15,8 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
@@ -34,7 +36,7 @@ public class HomeServer {
     private EventLoopGroup workerGroup = null;
     private ServerBootstrap bootstrap = null;
     private ChannelFuture chanel = null;
-    
+
     public HomeServer() {
 
     }
@@ -66,6 +68,8 @@ public class HomeServer {
                         }
                         //p.addLast(new LoggingHandler(LogLevel.INFO));
 
+                        p.addLast(new StringDecoder());
+                        p.addLast(new StringEncoder());
                         p.addLast(handler);
                     }
                 });
